@@ -29,4 +29,6 @@
     <string name="asteroid_image_of_the_day">Asteroid Image of the Day</string>
     <string name="help_image">Help Image</string>
     <string name="save_image">Save Image</string>
+    <string name="potentially_hazardous_asteroid_icon">Potentially hazardous asteroid icon</string>
+    <string name="not_hazardous_asteroid_icon">Not hazardous asteroid icon</string>
 </resources>
