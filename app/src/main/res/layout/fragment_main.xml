@@ -30,7 +30,7 @@
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 app:imageUrl="@{viewModel.iod}"
-                android:contentDescription="@string/asteroid_image_of_the_day"/>
+                tools:ignore="ContentDescription"/>
 
             <TextView
                 android:id="@+id/textView"
