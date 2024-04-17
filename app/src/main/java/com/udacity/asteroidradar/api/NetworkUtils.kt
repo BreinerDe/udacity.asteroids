@@ -1,7 +1,6 @@
 package com.udacity.asteroidradar.api
-import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.Constants
 
+import com.udacity.asteroidradar.Constants
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -11,7 +10,7 @@ fun formatDate(date : Date) : String {
     return dateFormat.format(date)
 }
 
-fun strToDate(dateStr :String) :Date?{
+fun strToDate(dateStr :String) :Date{
     return SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT).parse(dateStr)
 }
 
@@ -34,12 +33,6 @@ fun getNextSevenDaysFormattedDates(): ArrayList<String> {
         formattedDateList.add(dateFormat.format(currentTime))
         calendar.add(Calendar.DAY_OF_YEAR, 1)
     }
-    return formattedDateList
-}
 
-fun asteroidIsOldOrDateIsInvalid(asteroid: Asteroid) : Boolean {
-    strToDate(asteroid.closeApproachDate)?.let {
-        return it.before(strToDate(formatDate(Calendar.getInstance().time)))
-    }
-    return true
+    return formattedDateList
 }

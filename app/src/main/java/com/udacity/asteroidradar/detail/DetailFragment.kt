@@ -1,6 +1,7 @@
 package com.udacity.asteroidradar.detail
 
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
+import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentDetailBinding
 
@@ -46,7 +48,7 @@ class DetailFragment : Fragment() {
 
         viewModel.requestConfirmDelete.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                showConfirmDeleteDialog()
+                showConfirmDeleteDialog(asteroid)
             }
         })
 
@@ -76,9 +78,10 @@ class DetailFragment : Fragment() {
         }
     }
 
-    private fun showConfirmDeleteDialog() {
+    @SuppressLint("StringFormatInvalid")
+    private fun showConfirmDeleteDialog(asteroid: Asteroid) {
         android.app.AlertDialog.Builder(requireContext())
-            .setMessage(getString(R.string.are_you_sure))
+            .setMessage(getString(R.string.are_you_sure, asteroid.codename))
             .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
                 viewModel.requestDelete()
                 dialog.dismiss()

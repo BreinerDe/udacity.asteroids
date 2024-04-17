@@ -11,13 +11,11 @@ import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.api.AsteroidApi
 import com.udacity.asteroidradar.api.asDomainModel
-import com.udacity.asteroidradar.api.formatDate
 import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.Exception
-import java.util.Calendar
 
 enum class AsteroidApiStatus { LOADING, ERROR, DONE }
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -46,7 +44,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val status: LiveData<AsteroidApiStatus>
         get() = _status
 
-    private val _asteroids = MutableLiveData<List<Asteroid>?>()
+    private var allAsteroids : List<Asteroid>? = null
     private val _shownAsteroids = MutableLiveData<List<Asteroid>?>()
     val shownAsteroids: LiveData<List<Asteroid>?>
         get() = _shownAsteroids
@@ -71,11 +69,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 _status.value= AsteroidApiStatus.LOADING
-                val calendar = Calendar.getInstance()
-                val today = formatDate(calendar.time)
-                calendar.add(Calendar.DAY_OF_YEAR, 7)
-                val inSevenDays = formatDate(calendar.time)
-                val asteroidsResponse = AsteroidApi.retrofitService.getAsteroids(startDate = inSevenDays, endDate = today )
+                val asteroidsResponse = AsteroidApi.retrofitService.getAsteroidsForNextSevenDays()
                 val iodResponse = AsteroidApi.retrofitService.getIOD()
                 Timber.i("Asteroids Class: ${asteroidsResponse.javaClass}")
                 Timber.i("IOD Class: ${iodResponse.javaClass}")
@@ -83,7 +77,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _iod.value = iodResponse.asDomainModel()
                 val listResult = asteroidsResponse.asDomainModel()
                 if (listResult.isNotEmpty()) {
-                    _asteroids.value = listResult
+                    allAsteroids = listResult
                     _shownAsteroids.value = listResult
                     Timber.i("got ${listResult.size} items")
                 }
@@ -91,7 +85,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 Timber.e("Failure getting Asteroid Properties: $e")
                 _status.value = AsteroidApiStatus.ERROR
-                _asteroids.value = ArrayList()
+                allAsteroids = null
             }
         }
 
@@ -105,12 +99,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             R.id.show_today_menu -> {
-                _shownAsteroids.value  = _asteroids.value?.filter { it.isFromToday }
+                _shownAsteroids.value  = allAsteroids?.filter { it.isFromToday }
                 _headerText.value = "Today"
             }
 
             else -> {
-                _shownAsteroids.value  = _asteroids.value
+                _shownAsteroids.value  = allAsteroids
                 _headerText.value = "All"
             }
         }
@@ -118,7 +112,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun showOnlyFiltered(){
         viewModelScope.launch{
+            _status.value = AsteroidApiStatus.LOADING
             _shownAsteroids.value = asteroidRepository.getAsteroids()
+            _status.value = AsteroidApiStatus.DONE
         }
     }
 
