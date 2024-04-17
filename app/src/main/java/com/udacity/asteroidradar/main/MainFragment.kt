@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 import timber.log.Timber
@@ -44,11 +45,29 @@ class MainFragment : Fragment() {
                 binding.statusLoadingWheel.visibility = View.VISIBLE
                 binding.asteroidRecycler.visibility = View.GONE
             } else {
+                if (it == AsteroidApiStatus.ERROR) {
+                    Snackbar.make(
+                        requireActivity().findViewById(android.R.id.content),
+                        getString(R.string.api_error),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    viewModel.doneShowingSnackBar()
+                }
                 binding.statusLoadingWheel.visibility = View.GONE
                 binding.asteroidRecycler.visibility = View.VISIBLE
             }
 
         })
+        viewModel.refreshButtonVisible.observe(viewLifecycleOwner, Observer {
+            if (it){
+                binding.btnRefreshAsteroids.visibility = View.VISIBLE
+                binding.btnRefreshAsteroids.isEnabled = true
+            } else {
+                binding.btnRefreshAsteroids.visibility = View.GONE
+                binding.btnRefreshAsteroids.isEnabled = false
+            }
+        })
+
         val menuHost : MenuHost = requireActivity()
         menuHost.addMenuProvider(OverflowMenu(viewModel), viewLifecycleOwner, Lifecycle.State.RESUMED)
 

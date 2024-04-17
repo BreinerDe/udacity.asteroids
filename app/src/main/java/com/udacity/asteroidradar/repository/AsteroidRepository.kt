@@ -52,7 +52,7 @@ class AsteroidRepository(private val database: AsteroidDatabase) {
         withContext(Dispatchers.IO) {
             val asteroids = database.asteroidDao.getAsteroids()
             asteroids?.map { asteroid ->
-                if (strToDate(asteroid.closeApproachDate).before(strToDate(formatDate(Calendar.getInstance().time)))) {
+                if (strToDate(asteroid.closeApproachDate)?.before(strToDate(formatDate(Calendar.getInstance().time))) == true) {
                     database.asteroidDao.delete(asteroid)
                 }
             }
