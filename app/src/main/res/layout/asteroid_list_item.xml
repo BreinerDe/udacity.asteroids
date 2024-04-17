@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="asteroid"
+            type="com.udacity.asteroidradar.Asteroid" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/asteroidName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/asteroidDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/list_item_size_text"
+            android:textColor="@color/default_text_color"
+            android:text="@{asteroid.codename}"
+            android:paddingStart="@dimen/list_item_padding_horizontal"
+            android:paddingTop="@dimen/list_item_padding_vertical"
+            tools:text="68347 (2001 KB67)"
+            tools:textColor="@color/colorPrimary"/>
+        <TextView
+            android:id="@+id/asteroidDate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/asteroidName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/list_item_size_text"
+            android:textColor="@color/text_grey"
+            android:text="@{asteroid.closeApproachDate}"
+            tools:text="2020-02-08"
+            tools:textColor="@color/colorPrimary"
+            android:paddingStart="@dimen/list_item_padding_horizontal"
+            android:paddingBottom="@dimen/list_item_padding_vertical"/>
+
+        <ImageView
+            android:id="@+id/statusIcon"
+            android:layout_width="@dimen/list_item_size_icon"
+            android:layout_height="@dimen/list_item_size_icon"
+            android:layout_marginEnd="24dp"
+            android:paddingTop="@dimen/list_item_padding_vertical"
+            app:layout_constraintBaseline_toBaselineOf="@id/asteroidName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/asteroidName"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:statusIcon="@{asteroid.potentiallyHazardous}"
+            tools:src="@drawable/ic_status_potentially_hazardous"
+            android:scaleType="fitCenter"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,90 @@
+package com.udacity.asteroidradar.api
+
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+import com.udacity.asteroidradar.Asteroid
+
+class Data {
+
+    @JsonClass(generateAdapter = true)
+    data class ApiAsteroidsResponse(
+
+        @Json(name="near_earth_objects") val asteroids: Map<String, List<ApiAsteroid>>,
+        @Json(name="element_count") val elementCount: Int
+    )
+    @JsonClass(generateAdapter = true)
+    data class ApiAsteroid(
+        @Json(name="name") val codename: String,
+        @Json(name="id") val id: String,
+        @Json(name="close_approach_data") val closeApproachData: List<ApiCloseApproachData>,
+        @Json(name="absolute_magnitude_h") val absoluteMagnitude: Double,
+        @Json(name="estimated_diameter")val estimatedDiameter: ApiEstimatedDiameter,
+        @Json(name="is_potentially_hazardous_asteroid") val isPotentiallyHazardous: Boolean)
+
+    @JsonClass(generateAdapter = true)
+    data class ApiCloseApproachData(
+        @Json(name="close_approach_date") val closeApproachDate: String,
+        @Json(name="relative_velocity") val relativeVelocity: ApiRelativeVelocity,
+        @Json(name="miss_distance") val missDistance: ApiMissDistance
+    )
+
+    @JsonClass(generateAdapter = true)
+    data class ApiRelativeVelocity(
+        @Json(name="kilometers_per_second") val relativeVelocityKilometersPerSecond: String
+    )
+
+    @JsonClass(generateAdapter = true)
+    data class ApiMissDistance(
+        @Json(name="astronomical") val missDistanceAstronomical: String
+    )
+
+    @JsonClass(generateAdapter = true)
+    data class ApiEstimatedDiameter(
+        @Json(name="kilometers") val kilometers: ApiEstimatedDiameterKilometers
+    )
+
+    @JsonClass(generateAdapter = true)
+    data class ApiEstimatedDiameterKilometers(
+        @Json(name="estimated_diameter_max") val diameterMax: Double
+    )
+
+    @JsonClass(generateAdapter = true)
+    data class ApiIODResponse(val url: String, @Json(name="media_type") val mediaType: String)
+}
+
+fun Data.ApiAsteroidsResponse.asDomainModel(): List<Asteroid> {
+    val asteroids = this.asteroids
+    val asteroidList = ArrayList<Asteroid>()
+    val nextSevenDaysFormattedDates = getNextSevenDaysFormattedDates()
+    for (formattedDate in nextSevenDaysFormattedDates) {
+        if (asteroids.containsKey(formattedDate)) {
+            val dateAsteroidJsonArray = asteroids[formattedDate]
+            if (dateAsteroidJsonArray != null) {
+                for (asteroidJson in dateAsteroidJsonArray) {
+                    val closeApproachData = asteroidJson.closeApproachData[0]
+                    val asteroid = Asteroid(
+                        asteroidJson.id.toLong(),
+                        asteroidJson.codename,
+                        formattedDate,
+                        asteroidJson.absoluteMagnitude,
+                        asteroidJson.estimatedDiameter.kilometers.diameterMax,
+                        closeApproachData.relativeVelocity.relativeVelocityKilometersPerSecond.toDouble(),
+                        closeApproachData.missDistance.missDistanceAstronomical.toDouble(),
+                        asteroidJson.isPotentiallyHazardous
+                    )
+                    asteroidList.add(asteroid)
+                }
+            }
+        }
+    }
+    return asteroidList
+}
+
+fun Data.ApiIODResponse.asDomainModel(): String {
+    //media Type can be video e.g. 26.02.2024
+    if (mediaType == "image") {
+        return this.url
+    }
+    //fallback if media-type is video
+    return "https://apod.nasa.gov/apod/image/2402/im-moon-imageFeb23_1024.jpg"
+}
